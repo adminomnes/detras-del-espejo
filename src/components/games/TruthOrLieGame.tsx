@@ -30,6 +30,46 @@ function getScoreColor(percentage: number): string {
 
 const TOTAL_QUESTIONS = PREGUNTAS_TRUTH.length;
 
+const PARTICLE_POSITIONS = Array.from({ length: 30 }, (_, i) => {
+  const n = i * 137.5;
+  return {
+    id: i,
+    initialX: 50 + ((n * 7) % 200),
+    initialY: 200 + ((n * 13) % 100),
+    animateX: ((n * 3) % 400) - 200,
+    animateY: -((n * 5) % 700) - 100,
+    duration: 2 + ((n * 11) % 200) / 100,
+    delay: 1 + ((n * 17) % 150) / 100,
+    color: ["#d4af37", "#b300ff", "#ff00cc", "#22c55e", "#38bdf8"][i % 5],
+  };
+});
+
+function GameOverParticles() {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {PARTICLE_POSITIONS.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{ opacity: 0, x: p.initialX, y: p.initialY }}
+          animate={{
+            opacity: [0, 0.8, 0],
+            x: p.animateX,
+            y: p.animateY,
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeOut",
+          }}
+          className="absolute w-1.5 h-1.5 rounded-full"
+          style={{ backgroundColor: p.color }}
+        />
+      ))}
+    </div>
+  );
+}
+
 interface ConfettiParticle {
   id: number;
   x: number;
@@ -73,25 +113,6 @@ export default function TruthOrLieGame() {
     setTimeout(() => setConfetti([]), 1500);
   }, []);
 
-  const handleAnswer = useCallback(
-    (answer: boolean) => {
-      if (answered || !currentQuestion) return;
-
-      setAnswered(true);
-      setSelectedAnswer(answer);
-
-      if (answer === currentQuestion.truth) {
-        setScore((s) => s + 1);
-        spawnConfetti();
-      }
-
-      nextTimerRef.current = setTimeout(() => {
-        handleNext();
-      }, 2000);
-    },
-    [answered, currentQuestion, spawnConfetti],
-  );
-
   const handleNext = useCallback(() => {
     if (nextTimerRef.current) {
       clearTimeout(nextTimerRef.current);
@@ -108,6 +129,25 @@ export default function TruthOrLieGame() {
     setAnswered(false);
     setSelectedAnswer(null);
   }, [currentIndex]);
+
+  const handleAnswer = useCallback(
+    (answer: boolean) => {
+      if (answered || !currentQuestion) return;
+
+      setAnswered(true);
+      setSelectedAnswer(answer);
+
+      if (answer === currentQuestion.truth) {
+        setScore((s) => s + 1);
+        spawnConfetti();
+      }
+
+      nextTimerRef.current = setTimeout(() => {
+        handleNext();
+      }, 2000);
+    },
+    [answered, currentQuestion, spawnConfetti, handleNext],
+  );
 
   const handleRestart = useCallback(() => {
     setQuestions(shuffle(PREGUNTAS_TRUTH));
@@ -213,39 +253,7 @@ export default function TruthOrLieGame() {
             </motion.button>
 
             {/* Game over particles */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              {Array.from({ length: 30 }).map((_, i) => (
-                <motion.div
-                  key={`go-particle-${i}`}
-                  initial={{
-                    opacity: 0,
-                    x: 50 + Math.random() * 200,
-                    y: 200 + Math.random() * 100,
-                  }}
-                  animate={{
-                    opacity: [0, 0.8, 0],
-                    x: Math.random() * 400 - 200,
-                    y: Math.random() * -600 - 100,
-                  }}
-                  transition={{
-                    duration: 2 + Math.random() * 2,
-                    delay: 1 + Math.random() * 1.5,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeOut",
-                  }}
-                  className="absolute w-1.5 h-1.5 rounded-full"
-                  style={{
-                    backgroundColor: [
-                      "#d4af37",
-                      "#b300ff",
-                      "#ff00cc",
-                      "#22c55e",
-                      "#38bdf8",
-                    ][i % 5],
-                  }}
-                />
-              ))}
-            </div>
+            <GameOverParticles />
           </motion.div>
         ) : (
           /* Game play area */

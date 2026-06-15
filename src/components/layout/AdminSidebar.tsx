@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import {
-  LayoutDashboard, Mic, Users, ImageIcon, FileText, MessageSquare, LogOut, UserPlus, Calendar, Library,
+  LayoutDashboard, Mic, Users, ImageIcon, FileText, MessageSquare, LogOut, UserPlus, Calendar, Library, Gamepad2,
 } from "lucide-react";
 
 const adminLinks = [
@@ -13,6 +13,7 @@ const adminLinks = [
   { name: "Episodios", href: "/admin/episodios", icon: Mic },
   { name: "Invitados", href: "/admin/invitados", icon: Users },
   { name: "Invitadas", href: "/admin/invitadas", icon: UserPlus },
+  { name: "Juegos", href: "/admin/invitadas/juegos", icon: Gamepad2 },
   { name: "Calendario", href: "/admin/calendario", icon: Calendar },
   { name: "Biblioteca", href: "/admin/biblioteca", icon: Library },
   { name: "Galería", href: "/admin/galeria", icon: ImageIcon },
