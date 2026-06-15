@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { GlobalPlayer } from "@/components/player/GlobalPlayer";
 import ParticleBackground from "@/components/effects/ParticleBackground";
 import { WeeklyFlyer } from "@/components/flyer/WeeklyFlyer";
+import { BackgroundMusic } from "@/components/effects/BackgroundMusic";
 
 export default function PublicLayout({
   children,
@@ -19,6 +20,7 @@ export default function PublicLayout({
       <Footer />
       <GlobalPlayer />
       <WeeklyFlyer />
+      <BackgroundMusic />
     </>
   );
 }
