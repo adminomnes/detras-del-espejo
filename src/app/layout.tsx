@@ -19,6 +19,24 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    siteName: SITE_NAME,
+    images: [
+      {
+        url: "/logo.png",
+        width: 400,
+        height: 400,
+      },
+    ],
+    locale: "es_CL",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

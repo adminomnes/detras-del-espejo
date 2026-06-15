@@ -2,6 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { GlobalPlayer } from "@/components/player/GlobalPlayer";
 import ParticleBackground from "@/components/effects/ParticleBackground";
+import { WeeklyFlyer } from "@/components/flyer/WeeklyFlyer";
 
 export default function PublicLayout({
   children,
@@ -17,6 +18,7 @@ export default function PublicLayout({
       </main>
       <Footer />
       <GlobalPlayer />
+      <WeeklyFlyer />
     </>
   );
 }

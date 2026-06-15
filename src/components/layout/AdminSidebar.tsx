@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import {
-  LayoutDashboard, Mic, Users, ImageIcon, FileText, MessageSquare, LogOut, UserPlus, Calendar, Library, Gamepad2,
+  LayoutDashboard, Mic, Users, ImageIcon, FileText, MessageSquare, LogOut, UserPlus, Calendar, Library, Gamepad2, ImagePlus
 } from "lucide-react";
 
 const adminLinks = [
@@ -19,6 +19,7 @@ const adminLinks = [
   { name: "Galería", href: "/admin/galeria", icon: ImageIcon },
   { name: "Noticias", href: "/admin/noticias", icon: FileText },
   { name: "Mensajes", href: "/admin/mensajes", icon: MessageSquare },
+  { name: "Flyers", href: "/admin/flyers", icon: ImagePlus },
 ];
 
 export function AdminSidebar() {
