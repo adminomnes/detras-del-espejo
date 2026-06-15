@@ -23,23 +23,21 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const supabase = createClient();
 
-    if (error) {
-      setError(error.message);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      window.location.href = "/admin";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error de conexión con Supabase");
       setLoading(false);
-      return;
-    }
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      router.refresh();
-      router.push("/admin");
-    } else {
-      setTimeout(() => {
-        window.location.href = "/admin";
-      }, 500);
     }
   };
 
