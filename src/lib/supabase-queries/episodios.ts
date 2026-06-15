@@ -1,5 +1,4 @@
-import { createClient as createBrowserClient } from "@/lib/supabase/client";
-import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export type Episodio = {
   id: string;
@@ -17,16 +16,8 @@ export type Episodio = {
   created_at: string;
 };
 
-async function getClient() {
-  try {
-    return await createServerClient();
-  } catch {
-    return createBrowserClient();
-  }
-}
-
 export async function getEpisodiosPublicados() {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("episodios")
     .select("*, invitados:invitado_id(*)")
@@ -36,7 +27,7 @@ export async function getEpisodiosPublicados() {
 }
 
 export async function getEpisodioBySlug(slug: string) {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("episodios")
     .select("*, invitados:invitado_id(*)")
@@ -46,7 +37,7 @@ export async function getEpisodioBySlug(slug: string) {
 }
 
 export async function getEpisodioById(id: string) {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("episodios")
     .select("*, invitados:invitado_id(*)")
@@ -56,7 +47,7 @@ export async function getEpisodioById(id: string) {
 }
 
 export async function getAllEpisodios() {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("episodios")
     .select("*, invitados:invitado_id(*)")

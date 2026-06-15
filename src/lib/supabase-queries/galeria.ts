@@ -1,5 +1,4 @@
-import { createClient as createBrowserClient } from "@/lib/supabase/client";
-import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export type GaleriaItem = {
   id: string;
@@ -9,16 +8,8 @@ export type GaleriaItem = {
   created_at: string;
 };
 
-async function getClient() {
-  try {
-    return await createServerClient();
-  } catch {
-    return createBrowserClient();
-  }
-}
-
 export async function getGaleria() {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("galeria")
     .select("*")
@@ -27,7 +18,7 @@ export async function getGaleria() {
 }
 
 export async function getGaleriaById(id: string) {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("galeria")
     .select("*")

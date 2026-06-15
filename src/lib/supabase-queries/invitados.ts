@@ -1,5 +1,4 @@
-import { createClient as createBrowserClient } from "@/lib/supabase/client";
-import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export type Invitado = {
   id: string;
@@ -14,16 +13,8 @@ export type Invitado = {
   created_at: string;
 };
 
-async function getClient() {
-  try {
-    return await createServerClient();
-  } catch {
-    return createBrowserClient();
-  }
-}
-
 export async function getInvitados() {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("invitados")
     .select("*")
@@ -32,7 +23,7 @@ export async function getInvitados() {
 }
 
 export async function getInvitadoBySlug(slug: string) {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("invitados")
     .select("*, episodios(*, invitados:invitado_id(*))")
@@ -42,7 +33,7 @@ export async function getInvitadoBySlug(slug: string) {
 }
 
 export async function getInvitadoById(id: string) {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("invitados")
     .select("*, episodios(*)")

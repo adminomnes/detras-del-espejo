@@ -1,5 +1,4 @@
-import { createClient as createBrowserClient } from "@/lib/supabase/client";
-import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export type Noticia = {
   id: string;
@@ -11,16 +10,8 @@ export type Noticia = {
   created_at: string;
 };
 
-async function getClient() {
-  try {
-    return await createServerClient();
-  } catch {
-    return createBrowserClient();
-  }
-}
-
 export async function getNoticias() {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("noticias")
     .select("*")
@@ -29,7 +20,7 @@ export async function getNoticias() {
 }
 
 export async function getNoticiaBySlug(slug: string) {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("noticias")
     .select("*")
@@ -39,7 +30,7 @@ export async function getNoticiaBySlug(slug: string) {
 }
 
 export async function getNoticiaById(id: string) {
-  const supabase = await getClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("noticias")
     .select("*")

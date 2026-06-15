@@ -1,4 +1,5 @@
-import { createClient as createBrowserClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type GuestApplication = {
   id: string;
@@ -26,7 +27,7 @@ export type GuestApplication = {
 };
 
 export async function getGuestApplications() {
-  const supabase = await createBrowserClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("guest_applications")
     .select("*")
@@ -35,7 +36,7 @@ export async function getGuestApplications() {
 }
 
 export async function getGuestApplication(id: string) {
-  const supabase = await createBrowserClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("guest_applications")
     .select("*")
@@ -50,7 +51,7 @@ export async function updateGuestApplicationStatus(
   nota_interna?: string,
   fecha_entrevista?: string
 ) {
-  const supabase = await createBrowserClient();
+  const supabase = createAdminClient();
   const updates: Record<string, unknown> = {
     estado,
     updated_at: new Date().toISOString(),
