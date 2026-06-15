@@ -29,8 +29,17 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
       setLoading(false);
-    } else {
+      return;
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      router.refresh();
       router.push("/admin");
+    } else {
+      setTimeout(() => {
+        window.location.href = "/admin";
+      }, 500);
     }
   };
 
