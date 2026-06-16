@@ -21,6 +21,10 @@ export function TurnstileWidget({ onVerify, onExpire }: TurnstileWidgetProps) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const widgetIdRef = useRef<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
+  onVerifyRef.current = onVerify;
+  onExpireRef.current = onExpire;
 
   useEffect(() => {
     if (!siteKey || !containerRef.current) return;
@@ -32,8 +36,8 @@ export function TurnstileWidget({ onVerify, onExpire }: TurnstileWidgetProps) {
       }
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
         sitekey: siteKey,
-        callback: (token: string) => onVerify(token),
-        "expired-callback": () => onExpire?.(),
+        callback: (token: string) => onVerifyRef.current(token),
+        "expired-callback": () => onExpireRef.current?.(),
         theme: "dark",
       });
     };
@@ -54,7 +58,7 @@ export function TurnstileWidget({ onVerify, onExpire }: TurnstileWidgetProps) {
         window.turnstile.remove(widgetIdRef.current);
       }
     };
-  }, [siteKey, onVerify, onExpire]);
+  }, [siteKey]);
 
   if (!siteKey) return null;
 
