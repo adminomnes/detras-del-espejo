@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -65,7 +66,7 @@ export default function EditarInvitadoPage({ params }: Props) {
           />
         </div>
 
-        <Input label="URL de Foto" value={form.foto} onChange={(e) => setForm({ ...form, foto: e.target.value })} />
+        <ImageUploader currentImage={form.foto} onUpload={(url) => setForm({ ...form, foto: url })} />
         <Input label="Instagram URL" value={form.instagram} onChange={(e) => setForm({ ...form, instagram: e.target.value })} />
         <Input label="Facebook URL" value={form.facebook} onChange={(e) => setForm({ ...form, facebook: e.target.value })} />
         <Input label="TikTok URL" value={form.tiktok} onChange={(e) => setForm({ ...form, tiktok: e.target.value })} />

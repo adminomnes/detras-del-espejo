@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     const supabase = createAdminClient();
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}.${ext}`;
-    const filePath = `episodios/${fileName}`;
+    const filePath = `uploads/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("imagenes")

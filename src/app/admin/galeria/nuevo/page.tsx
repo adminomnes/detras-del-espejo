@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 
 export default function NuevaImagenGaleriaPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function NuevaImagenGaleriaPage() {
       <h1 className="text-3xl font-bold mb-8">Nueva Imagen</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        <Input label="URL de Imagen" value={form.imagen} onChange={(e) => setForm({ ...form, imagen: e.target.value })} required />
+        <ImageUploader currentImage={form.imagen} onUpload={(url) => setForm({ ...form, imagen: url })} />
         <Input label="Categoría" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} />
 
         <div className="flex flex-col gap-2">

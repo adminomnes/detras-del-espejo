@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -66,7 +67,7 @@ export default function EditarNoticiaPage({ params }: Props) {
           />
         </div>
 
-        <Input label="URL de Imagen" value={form.imagen} onChange={(e) => setForm({ ...form, imagen: e.target.value })} />
+        <ImageUploader currentImage={form.imagen} onUpload={(url) => setForm({ ...form, imagen: url })} />
 
         <div className="flex gap-4">
           <Button type="submit" disabled={saving}>
