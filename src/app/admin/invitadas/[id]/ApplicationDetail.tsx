@@ -38,7 +38,7 @@ export function ApplicationDetail({ application }: { application: GuestApplicati
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const status = statusConfig[application.estado];
+  const status = statusConfig[application.estado] ?? statusConfig.pendiente;
 
   const updateStatus = async (estado: GuestApplication["estado"]) => {
     setActionLoading(estado);
