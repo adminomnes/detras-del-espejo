@@ -1,5 +1,5 @@
 import { getNoticias } from "@/lib/supabase-queries/noticias";
-import { DataTable } from "@/components/admin/DataTable";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
@@ -23,7 +23,12 @@ export default async function AdminNoticiasPage() {
         </Link>
       </div>
 
-      <DataTable columns={columns} data={noticias as unknown as Record<string, unknown>[]} basePath="/admin/noticias" />
+      <AdminTableWrapper
+        columns={columns}
+        data={noticias as unknown as Record<string, unknown>[]}
+        basePath="/admin/noticias"
+        tableName="noticias"
+      />
     </div>
   );
 }

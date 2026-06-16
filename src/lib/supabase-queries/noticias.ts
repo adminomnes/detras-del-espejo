@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type Noticia = {
   id: string;
@@ -11,7 +11,7 @@ export type Noticia = {
 };
 
 export async function getNoticias() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("noticias")
     .select("*")
@@ -20,7 +20,7 @@ export async function getNoticias() {
 }
 
 export async function getNoticiaBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("noticias")
     .select("*")
@@ -30,7 +30,7 @@ export async function getNoticiaBySlug(slug: string) {
 }
 
 export async function getNoticiaById(id: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("noticias")
     .select("*")

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type Invitado = {
   id: string;
@@ -14,7 +14,7 @@ export type Invitado = {
 };
 
 export async function getInvitados() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("invitados")
     .select("*")
@@ -23,7 +23,7 @@ export async function getInvitados() {
 }
 
 export async function getInvitadoBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("invitados")
     .select("*, episodios(*, invitados:invitado_id(*))")
@@ -33,7 +33,7 @@ export async function getInvitadoBySlug(slug: string) {
 }
 
 export async function getInvitadoById(id: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("invitados")
     .select("*, episodios(*)")

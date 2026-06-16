@@ -1,5 +1,5 @@
 import { getGaleria } from "@/lib/supabase-queries/galeria";
-import { DataTable } from "@/components/admin/DataTable";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
@@ -23,7 +23,12 @@ export default async function AdminGaleriaPage() {
         </Link>
       </div>
 
-      <DataTable columns={columns} data={galeria as unknown as Record<string, unknown>[]} basePath="/admin/galeria" />
+      <AdminTableWrapper
+        columns={columns}
+        data={galeria as unknown as Record<string, unknown>[]}
+        basePath="/admin/galeria"
+        tableName="galeria"
+      />
     </div>
   );
 }

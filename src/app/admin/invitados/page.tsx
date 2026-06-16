@@ -1,5 +1,5 @@
 import { getInvitados } from "@/lib/supabase-queries/invitados";
-import { DataTable } from "@/components/admin/DataTable";
+import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
@@ -22,7 +22,12 @@ export default async function AdminInvitadosPage() {
         </Link>
       </div>
 
-      <DataTable columns={columns} data={invitados as unknown as Record<string, unknown>[]} basePath="/admin/invitados" />
+      <AdminTableWrapper
+        columns={columns}
+        data={invitados as unknown as Record<string, unknown>[]}
+        basePath="/admin/invitados"
+        tableName="invitados"
+      />
     </div>
   );
 }
