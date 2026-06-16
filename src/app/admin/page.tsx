@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { StatsCard } from "@/components/admin/StatsCard";
 import { Mic, Users, MessageSquare, Star, Calendar, Clock, UserPlus } from "lucide-react";
 
@@ -7,7 +7,7 @@ import Link from "next/link";
 import { timeAgo } from "@/lib/utils/date";
 
 export default async function AdminDashboard() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const [episodiosRes, invitadosCount, destacadosCount, mensajesRes, estadoCounts, programadosRes, invitadasRes] = await Promise.all([
     supabase.from("episodios").select("*", { count: "exact", head: true }),

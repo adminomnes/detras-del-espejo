@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type GuestApplication = {
@@ -27,7 +26,7 @@ export type GuestApplication = {
 };
 
 export async function getGuestApplications() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("guest_applications")
     .select("*")
@@ -36,7 +35,7 @@ export async function getGuestApplications() {
 }
 
 export async function getGuestApplication(id: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("guest_applications")
     .select("*")
