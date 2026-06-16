@@ -1,9 +1,10 @@
-import { getGaleria } from "@/lib/supabase-queries/galeria";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-
-export const dynamic = "force-dynamic";
 
 const columns = [
   { key: "imagen", label: "Imagen", render: (value: unknown) => value ? <span className="text-primary">URL</span> : "-" },
@@ -11,8 +12,21 @@ const columns = [
   { key: "descripcion", label: "Descripción", render: (value: unknown) => value ? String(value).slice(0, 60) + "..." : "-" },
 ];
 
-export default async function AdminGaleriaPage() {
-  const galeria = await getGaleria();
+export default function AdminGaleriaPage() {
+  const [data, setData] = useState<Record<string, unknown>[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("galeria")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data: result }) => {
+        setData((result ?? []) as unknown as Record<string, unknown>[]);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div>
@@ -23,12 +37,16 @@ export default async function AdminGaleriaPage() {
         </Link>
       </div>
 
-      <AdminTableWrapper
-        columns={columns}
-        data={galeria as unknown as Record<string, unknown>[]}
-        basePath="/admin/galeria"
-        tableName="galeria"
-      />
+      {loading ? (
+        <p className="text-gray-500">Cargando...</p>
+      ) : (
+        <AdminTableWrapper
+          columns={columns}
+          data={data}
+          basePath="/admin/galeria"
+          tableName="galeria"
+        />
+      )}
     </div>
   );
 }

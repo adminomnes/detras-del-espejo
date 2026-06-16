@@ -1,17 +1,31 @@
-import { getInvitados } from "@/lib/supabase-queries/invitados";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { AdminTableWrapper } from "@/components/admin/AdminTableWrapper";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-
-export const dynamic = "force-dynamic";
 
 const columns = [
   { key: "nombre", label: "Nombre" },
   { key: "biografia", label: "Biografía", render: (value: unknown) => value ? String(value).slice(0, 60) + "..." : "-" },
 ];
 
-export default async function AdminInvitadosPage() {
-  const invitados = await getInvitados();
+export default function AdminInvitadosPage() {
+  const [data, setData] = useState<Record<string, unknown>[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("invitados")
+      .select("*")
+      .order("nombre", { ascending: true })
+      .then(({ data: result }) => {
+        setData((result ?? []) as unknown as Record<string, unknown>[]);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div>
@@ -22,12 +36,16 @@ export default async function AdminInvitadosPage() {
         </Link>
       </div>
 
-      <AdminTableWrapper
-        columns={columns}
-        data={invitados as unknown as Record<string, unknown>[]}
-        basePath="/admin/invitados"
-        tableName="invitados"
-      />
+      {loading ? (
+        <p className="text-gray-500">Cargando...</p>
+      ) : (
+        <AdminTableWrapper
+          columns={columns}
+          data={data}
+          basePath="/admin/invitados"
+          tableName="invitados"
+        />
+      )}
     </div>
   );
 }

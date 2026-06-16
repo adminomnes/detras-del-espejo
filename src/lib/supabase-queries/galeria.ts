@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 export type GaleriaItem = {
   id: string;
@@ -9,7 +9,7 @@ export type GaleriaItem = {
 };
 
 export async function getGaleria() {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("galeria")
     .select("*")
@@ -18,7 +18,7 @@ export async function getGaleria() {
 }
 
 export async function getGaleriaById(id: string) {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("galeria")
     .select("*")
