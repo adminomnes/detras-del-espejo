@@ -1,56 +1,58 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useFlyerStore } from "@/store/useFlyerStore";
 import { X } from "lucide-react";
 
+interface Flyer {
+  id: string;
+  image_url: string;
+  assigned_week: number;
+  is_active: boolean;
+  created_at: string;
+}
+
 export function WeeklyFlyer() {
-  const { flyers } = useFlyerStore();
   const [currentFlyerUrl, setCurrentFlyerUrl] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isRendered, setIsRendered] = useState(false);
 
   useEffect(() => {
-    // 1. Verificar si ya se mostró en esta sesión
-    if (sessionStorage.getItem("flyerShown")) {
-      return;
-    }
+    if (sessionStorage.getItem("flyerShown")) return;
 
-    const activeFlyers = flyers.filter((f) => f.isActive);
-    if (activeFlyers.length === 0) return;
+    fetch("/api/flyers")
+      .then((res) => res.json())
+      .then((json) => {
+        if (!json.success) return;
+        const activeFlyers: Flyer[] = json.data.filter((f: Flyer) => f.is_active);
+        if (activeFlyers.length === 0) return;
 
-    // 2. Calcular semana actual del año
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const diff =
-      now.getTime() -
-      start.getTime() +
-      (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60000;
-    const oneWeek = 1000 * 60 * 60 * 24 * 7;
-    const currentWeek = Math.floor(diff / oneWeek) + 1;
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 1);
+        const diff =
+          now.getTime() -
+          start.getTime() +
+          (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60000;
+        const oneWeek = 1000 * 60 * 60 * 24 * 7;
+        const currentWeek = Math.floor(diff / oneWeek) + 1;
 
-    // 3. Buscar flyer para la semana actual
-    let selectedFlyer = activeFlyers.find((f) => f.assignedWeek === currentWeek);
+        let selected = activeFlyers.find((f) => f.assigned_week === currentWeek);
+        if (!selected) {
+          selected = [...activeFlyers].sort(
+            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          )[0];
+        }
 
-    // 4. Fallback al último flyer activo si no hay coincidencia
-    if (!selectedFlyer) {
-      selectedFlyer = [...activeFlyers].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )[0];
-    }
-
-    if (selectedFlyer) {
-      setCurrentFlyerUrl(selectedFlyer.imageUrl);
-      setIsRendered(true);
-      // Pequeño delay para asegurar que la transición de CSS se aplique
-      setTimeout(() => setIsVisible(true), 50);
-    }
-  }, [flyers]);
+        if (selected) {
+          setCurrentFlyerUrl(selected.image_url);
+          setIsRendered(true);
+          setTimeout(() => setIsVisible(true), 50);
+        }
+      });
+  }, []);
 
   const handleClose = () => {
     setIsVisible(false);
     sessionStorage.setItem("flyerShown", "true");
-    // Esperar a que termine la animación antes de desmontar el componente
     setTimeout(() => setIsRendered(false), 400);
   };
 

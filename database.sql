@@ -179,3 +179,27 @@ CREATE POLICY "Solo admins pueden actualizar aplicaciones" ON public.guest_appli
 CREATE POLICY "Solo admins pueden eliminar aplicaciones" ON public.guest_applications FOR DELETE USING (
   auth.uid() IN (SELECT id FROM public.usuarios WHERE rol IN ('admin', 'superadmin'))
 );
+
+-- ============================================================
+-- Tabla: flyers (flyers semanales visibles en el frontend)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.flyers (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  image_url TEXT NOT NULL,
+  assigned_week INTEGER NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.flyers ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Flyers visibles para todos" ON public.flyers FOR SELECT USING (true);
+CREATE POLICY "Solo admins pueden insertar flyers" ON public.flyers FOR INSERT WITH CHECK (
+  auth.uid() IN (SELECT id FROM public.usuarios WHERE rol IN ('admin', 'superadmin'))
+);
+CREATE POLICY "Solo admins pueden actualizar flyers" ON public.flyers FOR UPDATE USING (
+  auth.uid() IN (SELECT id FROM public.usuarios WHERE rol IN ('admin', 'superadmin'))
+);
+CREATE POLICY "Solo admins pueden eliminar flyers" ON public.flyers FOR DELETE USING (
+  auth.uid() IN (SELECT id FROM public.usuarios WHERE rol IN ('admin', 'superadmin'))
+);

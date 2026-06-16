@@ -1,11 +1,19 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useFlyerStore } from "@/store/useFlyerStore";
+import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Trash2, Power, PowerOff, UploadCloud, X } from "lucide-react";
 
+interface Flyer {
+  id: string;
+  image_url: string;
+  assigned_week: number;
+  is_active: boolean;
+  created_at: string;
+}
+
 export default function FlyersAdminPage() {
-  const { flyers, addFlyer, toggleActive, deleteFlyer } = useFlyerStore();
+  const [flyers, setFlyers] = useState<Flyer[]>([]);
+  const [loading, setLoading] = useState(true);
   const [week, setWeek] = useState(1);
   const [preview, setPreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -13,7 +21,15 @@ export default function FlyersAdminPage() {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Manejar selección de archivo local — mostrar preview inmediato
+  useEffect(() => {
+    fetch("/api/flyers")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success) setFlyers(json.data);
+        setLoading(false);
+      });
+  }, []);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -31,7 +47,6 @@ export default function FlyersAdminPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Subir al endpoint /api/upload existente y guardar URL pública
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
@@ -43,15 +58,51 @@ export default function FlyersAdminPage() {
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? "Error al subir imagen");
-      addFlyer({ imageUrl: json.url, assignedWeek: week, isActive: true });
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+      const uploadJson = await uploadRes.json();
+      if (!uploadRes.ok) throw new Error(uploadJson.error ?? "Error al subir imagen");
+
+      const createRes = await fetch("/api/flyers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_url: uploadJson.url, assigned_week: week }),
+      });
+      const createJson = await createRes.json();
+      if (!createRes.ok) throw new Error(createJson.error ?? "Error al crear flyer");
+
+      setFlyers((prev) => [...prev, createJson.data]);
       handleClearFile();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error inesperado");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleToggle = async (id: string, current: boolean) => {
+    const res = await fetch(`/api/flyers/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_active: !current }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      setFlyers((prev) => prev.map((f) => (f.id === id ? json.data : f)));
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Eliminar este flyer?")) return;
+    const res = await fetch("/api/admin/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ table: "flyers", id }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      setFlyers((prev) => prev.filter((f) => f.id !== id));
+    } else {
+      alert("Error: " + (json.error || "No se pudo eliminar"));
     }
   };
 
@@ -64,13 +115,10 @@ export default function FlyersAdminPage() {
         </p>
       </div>
 
-      {/* ── Formulario de upload ── */}
       <div className="bg-gray-900/30 border border-white/5 rounded-2xl p-6 mb-8">
         <h2 className="text-lg font-bold text-white mb-5">Subir Nuevo Flyer</h2>
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col md:flex-row gap-6 items-start">
-
-            {/* Zona de drop / selección de archivo */}
             <div className="flex-1 w-full">
               {!preview ? (
                 <button
@@ -105,8 +153,6 @@ export default function FlyersAdminPage() {
                 onChange={handleFileChange}
               />
             </div>
-
-            {/* Semana + botón */}
             <div className="flex flex-col gap-4 w-full md:w-44">
               <div>
                 <label className="block text-sm text-gray-400 mb-2">Semana del año (1–52)</label>
@@ -119,11 +165,9 @@ export default function FlyersAdminPage() {
                   className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
-
               {error && (
                 <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
               )}
-
               <button
                 type="submit"
                 disabled={uploading || !selectedFile}
@@ -145,59 +189,62 @@ export default function FlyersAdminPage() {
         </form>
       </div>
 
-      {/* ── Listado de flyers ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {flyers.length === 0 ? (
-          <div className="col-span-full py-16 text-center text-gray-500 bg-gray-900/30 rounded-2xl border border-white/5">
-            <UploadCloud size={36} className="mx-auto mb-3 opacity-30" />
-            <p>No hay flyers configurados aún.</p>
-          </div>
-        ) : (
-          flyers.map((flyer) => (
-            <div
-              key={flyer.id}
-              className={`relative bg-gray-900/30 border ${flyer.isActive ? "border-primary/50" : "border-white/5"} rounded-2xl overflow-hidden transition-all`}
-            >
-              <div className="aspect-[3/4] relative">
-                <img
-                  src={flyer.imageUrl}
-                  alt={`Flyer Semana ${flyer.assignedWeek}`}
-                  className="w-full h-full object-cover"
-                />
-                {!flyer.isActive && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                    <span className="text-white/50 font-medium tracking-widest uppercase text-sm">Inactivo</span>
-                  </div>
-                )}
-              </div>
-              <div className="p-4 flex items-center justify-between border-t border-white/5">
-                <div>
-                  <span className="text-xs text-primary font-bold tracking-wider uppercase">
-                    Semana {flyer.assignedWeek}
-                  </span>
-                  <p className="text-[10px] text-gray-600 mt-0.5">ID: {flyer.id}</p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => toggleActive(flyer.id)}
-                    className={`p-2 rounded-lg transition-colors ${flyer.isActive ? "text-green-400 hover:bg-green-400/10" : "text-gray-500 hover:bg-gray-800"}`}
-                    title={flyer.isActive ? "Desactivar" : "Activar"}
-                  >
-                    {flyer.isActive ? <Power size={18} /> : <PowerOff size={18} />}
-                  </button>
-                  <button
-                    onClick={() => deleteFlyer(flyer.id)}
-                    className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
-                    title="Eliminar"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </div>
+      {loading ? (
+        <p className="text-gray-500 text-center py-12">Cargando flyers...</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          {flyers.length === 0 ? (
+            <div className="col-span-full py-16 text-center text-gray-500 bg-gray-900/30 rounded-2xl border border-white/5">
+              <UploadCloud size={36} className="mx-auto mb-3 opacity-30" />
+              <p>No hay flyers configurados aún.</p>
             </div>
-          ))
-        )}
-      </div>
+          ) : (
+            flyers.map((flyer) => (
+              <div
+                key={flyer.id}
+                className={`relative bg-gray-900/30 border ${flyer.is_active ? "border-primary/50" : "border-white/5"} rounded-2xl overflow-hidden transition-all`}
+              >
+                <div className="aspect-[3/4] relative">
+                  <img
+                    src={flyer.image_url}
+                    alt={`Flyer Semana ${flyer.assigned_week}`}
+                    className="w-full h-full object-cover"
+                  />
+                  {!flyer.is_active && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <span className="text-white/50 font-medium tracking-widest uppercase text-sm">Inactivo</span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 flex items-center justify-between border-t border-white/5">
+                  <div>
+                    <span className="text-xs text-primary font-bold tracking-wider uppercase">
+                      Semana {flyer.assigned_week}
+                    </span>
+                    <p className="text-[10px] text-gray-600 mt-0.5">ID: {flyer.id}</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleToggle(flyer.id, flyer.is_active)}
+                      className={`p-2 rounded-lg transition-colors ${flyer.is_active ? "text-green-400 hover:bg-green-400/10" : "text-gray-500 hover:bg-gray-800"}`}
+                      title={flyer.is_active ? "Desactivar" : "Activar"}
+                    >
+                      {flyer.is_active ? <Power size={18} /> : <PowerOff size={18} />}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(flyer.id)}
+                      className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                      title="Eliminar"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }
