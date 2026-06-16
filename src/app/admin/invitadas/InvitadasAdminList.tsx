@@ -68,9 +68,9 @@ export function InvitadasAdminList({ applications }: { applications: GuestApplic
           </div>
         ) : (
           <div className="divide-y divide-white/5">
-            {filtered.map((app) => {
-              const status = statusConfig[app.estado];
-              const StatusIcon = status.icon;
+              {filtered.map((app) => {
+                const status = statusConfig[app.estado] ?? statusConfig.pendiente;
+                const StatusIcon = status.icon;
               return (
                 <Link
                   key={app.id}
