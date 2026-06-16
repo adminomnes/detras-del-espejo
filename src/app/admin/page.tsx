@@ -1,3 +1,4 @@
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { StatsCard } from "@/components/admin/StatsCard";
 import { Mic, Users, MessageSquare, Star, Calendar, Clock, UserPlus } from "lucide-react";
@@ -8,6 +9,8 @@ import { timeAgo } from "@/lib/utils/date";
 
 export default async function AdminDashboard() {
   const supabase = createAdminClient();
+
+  const adminSupabase = createAdminClient();
 
   const [episodiosRes, invitadosCount, destacadosCount, mensajesRes, estadoCounts, programadosRes, invitadasRes] = await Promise.all([
     supabase.from("episodios").select("*", { count: "exact", head: true }),
@@ -20,7 +23,7 @@ export default async function AdminDashboard() {
       return counts;
     }),
     supabase.from("episodios").select("id, titulo, slug, fecha, invitados:invitado_id(nombre)").eq("estado", "programado").order("fecha", { ascending: true }).limit(5),
-    supabase.from("guest_applications").select("*", { count: "exact", head: true }).eq("estado", "pendiente").then((r) => r.count ?? 0),
+    adminSupabase.from("guest_applications").select("*", { count: "exact", head: true }).eq("estado", "pendiente").then((r) => r.count ?? 0),
   ]);
 
   const episodiosCount = episodiosRes.count ?? 0;
